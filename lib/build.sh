@@ -30,15 +30,17 @@ build_hardenedbsd() {
 
 		cd ${HBSD_SRC}
 		make \
-		    -n ${NJOBS} \
+		    -j ${HBSD_NJOBS} \
 		    TARGET=${HBSD_TARGET} \
 		    TARGET_ARCH=${HBSD_TARGET_ARCH} \
+		    -DNO_CLEAN \
 		    buildworld
 		make \
-		    -n ${NJOBS} \
+		    -j ${HBSD_NJOBS} \
 		    TARGET=${HBSD_TARGET} \
 		    TARGET_ARCH=${HBSD_TARGET_ARCH} \
 		    KERNCONF=${HBSD_KERNEL} \
+		    -DNO_KERNELCLEAN \
 		    buildkernel
 	)
 	return ${?}
@@ -71,9 +73,40 @@ stage_release() {
 	local f
 	local file
 
-	for file in $(find ${HBSD_OBJRELDIR} -maxdepth 1 -name '*.iso' - -name '*.img'); do
+	mkdir -p \
+	    ${HBSD_STAGEDIR} \
+	    ${HBSD_PUBDIR}
+
+	for file in $(find ${HBSD_OBJRELDIR} -maxdepth 1 \
+	    -name '*.iso' \
+	    -o -name '*.img' \
+	    -o -name '*.txz' \
+	    -o -name 'MANIFEST'); do
 		f=${file##*/}
 		mv ${file} ${HBSD_STAGEDIR}/${f}
-		xz -c9 ${HBSD_STAGEDIR}/${f} > ${HBSD_STAGEDIR}/${f}.xz
+		xz -kc9 ${HBSD_STAGEDIR}/${f} > ${HBSD_STAGEDIR}/${f}.xz
 	done
+	return 0
+}
+
+sign_release() {
+	(
+		cd ${HBSD_STAGEDIR}
+		for file in $(find . \
+		    -name '*.txz' \
+		    -o -name '*.img' \
+		    -o -name '*.iso' \
+		    -o -name 'MANIFEST'); do
+			f=${file##*/}
+			sha256 ${f} >> CHECKSUMS.SHA256
+			sha512 ${f} >> CHECKSUMS.SHA512
+			if [ ! -z "${HBSD_GPG_KEY}" ]; then
+				gpg --sign -a --detach \
+				    -u ${HBSD_GPG_KEY} \
+				    -o ${f}.asc \
+				    ${f}
+			fi
+		done
+	)
+	return 0
 }

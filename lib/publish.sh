@@ -24,28 +24,13 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-. ./lib/build.sh
-. ./lib/publish.sh
-
-main() {
-	HBSD_BUILDNUMBER=1
-	HBSD_KERNEL=HARDENEDBSD
-	HBSD_NJOBS=4
-	HBSD_OBJRELDIR=/usr/obj/usr/src/amd64.amd64/release
-	HBSD_PUBDIR=/build/pub
-	HBSD_SRC=/usr/src
-	HBSD_STAGEDIR=/build/stage
-	HBSD_TARGET=amd64
-	HBSD_TARGET_ARCH=amd64
-
-	build_hardenedbsd && \
-	    build_release && \
-	    stage_release && \
-	    sign_release && \
-	    publish_release && \
-	    kick_publisher_tires
+publish_release() {
+	mv ${HBSD_STAGEDIR} ${HBSD_PUBDIR}/${HBSD_BUILDNUMBER}
 	return ${?}
 }
 
-main ${0} $*
-exit ${?}
+kick_publisher_tires() {
+	# This function is for those mirrors that require push rather
+	# than pull. For now: nothing to see here; move along.
+	return 0
+}
