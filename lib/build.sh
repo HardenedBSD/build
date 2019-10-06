@@ -33,14 +33,14 @@ build_hardenedbsd() {
 		    -j ${HBSD_NJOBS} \
 		    TARGET=${HBSD_TARGET} \
 		    TARGET_ARCH=${HBSD_TARGET_ARCH} \
-		    -DNO_CLEAN \
+		    ${HBSD_NOCLEAN} \
 		    buildworld
 		make \
 		    -j ${HBSD_NJOBS} \
 		    TARGET=${HBSD_TARGET} \
 		    TARGET_ARCH=${HBSD_TARGET_ARCH} \
 		    KERNCONF=${HBSD_KERNEL} \
-		    -DNO_KERNELCLEAN \
+		    ${HBSD_NOCLEAN} \
 		    buildkernel
 	)
 	return ${?}
@@ -96,6 +96,7 @@ sign_release() {
 		    -name '*.txz' \
 		    -o -name '*.img' \
 		    -o -name '*.iso' \
+		    -o -name '*.xz' \
 		    -o -name 'MANIFEST'); do
 			f=${file##*/}
 			sha256 ${f} >> CHECKSUMS.SHA256

@@ -24,35 +24,53 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-. ./lib/build.sh
-. ./lib/publish.sh
-. ./lib/util.sh
+is_locked() {
+	if [ -e ${HBSD_LOCKFILE} ]; then
+		return 0
+	fi
 
-main() {
-	HBSD_INDEX_FILE=/build/index
-	HBSD_KERNEL=HARDENEDBSD
-	HBSD_LOCKFILE=/tmp/13-current.amd64.lock
-	HBSD_NJOBS=4
-	HBSD_OBJRELDIR=/usr/obj/scratch/src/hbsd-13/amd64.amd64/release
-	HBSD_PUBDIR=/build/pub
-	HBSD_SRC=/scratch/src/hbsd-13
-	HBSD_STAGEDIR=/build/stage
-	HBSD_TARGET=amd64
-	HBSD_TARGET_ARCH=amd64
-	HBSD_NOCLEAN="-DNO_CLEAN"
+	return 1
+}
 
-	assert_unlocked && \
-	    lock_build && \
-	    update_codebase && \
-	    build_hardenedbsd && \
-	    build_release && \
-	    stage_release && \
-	    sign_release && \
-	    publish_release && \
-	    kick_publisher_tires && \
-	    unlock_build
+lock_build() {
+	touch ${HBSD_LOCKFILE}
 	return ${?}
 }
 
-main ${0} $*
-exit ${?}
+unlock_build() {
+	rm -f ${HBSD_LOCKFILE}
+	return ${?}
+}
+
+assert_unlocked() {
+	if is_locked; then
+		echo "Build locked. Remove ${HBSD_LOCKFILE}"
+		exit 1
+	fi
+
+	return 0
+}
+
+build_number() {
+	local n
+
+	if [ -e ${HBSD_INDEX_FILE} ]; then
+		n=$(cat ${HBSD_INDEX_FILE})
+		n=$((${n} + 1))
+		echo ${n} | tee ${HBSD_INDEX_FILE}
+		return 0
+	fi
+
+	echo 1
+	return 0
+}
+
+update_codebase() {
+	(
+		set -ex
+
+		cd ${HBSD_SRC}
+		git pull
+	)
+	return ${?}
+}

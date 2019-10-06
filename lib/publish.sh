@@ -25,7 +25,7 @@
 # SUCH DAMAGE.
 
 publish_release() {
-	mv ${HBSD_STAGEDIR} ${HBSD_PUBDIR}/${HBSD_BUILDNUMBER}
+	mv ${HBSD_STAGEDIR} ${HBSD_PUBDIR}/$(build_number)
 	return ${?}
 }
 
