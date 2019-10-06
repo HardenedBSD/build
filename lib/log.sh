@@ -30,6 +30,10 @@ log_info() {
 }
 
 log_err() {
-	logger -p usr.err HBSDBUILD_ERROR: $*
+	logger -p user.err HBSDBUILD_ERROR: $*
 	return ${?}
+}
+
+build_log() {
+	tee ${HBSD_BUILD_LOG} 2>&1
 }

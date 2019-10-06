@@ -25,6 +25,7 @@
 # SUCH DAMAGE.
 
 . ./lib/build.sh
+. ./lib/log.sh
 . ./lib/publish.sh
 . ./lib/util.sh
 
@@ -40,17 +41,23 @@ main() {
 	HBSD_TARGET=amd64
 	HBSD_TARGET_ARCH=amd64
 	HBSD_NOCLEAN="-DNO_CLEAN"
+	HBSD_LOGDIR=/build/logs/13-current.amd64
 
-	assert_unlocked && \
-	    lock_build && \
-	    update_codebase && \
-	    build_hardenedbsd && \
-	    build_release && \
-	    stage_release && \
-	    sign_release && \
-	    publish_release && \
-	    kick_publisher_tires && \
-	    unlock_build
+	HBSD_BUILDNUMBER=$(build_number)
+	HBSD_BUILD_LOG=${HBSD_LOGDIR}/${HBSD_BUILDNUMBER}.log
+
+	(
+		assert_unlocked && \
+		    lock_build && \
+		    update_codebase && \
+		    build_hardenedbsd && \
+		    build_release && \
+		    stage_release && \
+		    sign_release && \
+		    publish_release && \
+		    kick_publisher_tires && \
+		    unlock_build
+	) | build_log
 	return ${?}
 }
 

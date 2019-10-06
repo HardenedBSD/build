@@ -51,6 +51,7 @@ assert_unlocked() {
 	return 0
 }
 
+# The build_number function must be called EXACTLY ONCE.
 build_number() {
 	local n
 
