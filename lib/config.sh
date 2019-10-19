@@ -24,53 +24,24 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-get_topdir() {
-	local self
+config_set_defaults() {
+	HBSD_GPG_KEY=""
+	#HBSD_GPG_KEY="BB53388D3BD9892815CB9E30819B11A26FFD188D"
+	HBSD_INDEX_FILE=/build/index
+	HBSD_KERNEL=HARDENEDBSD
+	HBSD_LOCKFILE=/tmp/13-current.amd64.lock
+	HBSD_NJOBS=4
+	HBSD_OBJRELDIR=/usr/obj/scratch/src/hbsd-13/amd64.amd64/release
+	HBSD_PUBDIR=/build/pub
+	HBSD_SRC=/scratch/src/hbsd-13
+	HBSD_STAGEDIR=/build/stage
+	HBSD_TARGET=amd64
+	HBSD_TARGET_ARCH=amd64
+	HBSD_NOCLEAN="-DNO_CLEAN"
+	HBSD_LOGDIR=/build/logs/13-current.amd64
 
-	self=${1}
+	HBSD_BUILDNUMBER=$(build_number)
+	HBSD_BUILD_LOG=${HBSD_LOGDIR}/${HBSD_BUILDNUMBER}.log
 
-	echo $(realpath $(dirname ${self}))
-	return ${?}
+	return 0
 }
-
-TOPDIR=$(get_topdir ${0})
-
-. ${TOPDIR}/../lib/build.sh
-. ${TOPDIR}/../lib/config.sh
-. ${TOPDIR}/../lib/log.sh
-. ${TOPDIR}/../lib/publish.sh
-. ${TOPDIR}/../lib/util.sh
-
-main() {
-	local self
-
-	self=${0}
-	shift
-
-	config_set_defaults
-
-	while getopts 'c:' o; do
-		case "${o}" in
-			c)
-				source "${OPTARG}"
-				;;
-		esac
-	done
-
-	(
-		assert_unlocked && \
-		    lock_build && \
-		    update_codebase && \
-		    build_hardenedbsd && \
-		    build_release && \
-		    stage_release && \
-		    sign_release && \
-		    publish_release && \
-		    kick_publisher_tires && \
-		    unlock_build
-	) | build_log 2>&1
-	return ${?}
-}
-
-main ${0} $*
-exit ${?}
