@@ -57,6 +57,8 @@ main() {
 		esac
 	done
 
+	config_set_dynamic
+
 	(
 		assert_unlocked && \
 		    lock_build && \
