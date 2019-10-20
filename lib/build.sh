@@ -72,6 +72,7 @@ build_release() {
 stage_release() {
 	local f
 	local file
+	local res
 
 	mkdir -p \
 	    ${HBSD_STAGEDIR} \
@@ -84,13 +85,23 @@ stage_release() {
 	    -o -name 'MANIFEST'); do
 		f=${file##*/}
 		mv ${file} ${HBSD_STAGEDIR}/${f}
+		res=${?}
+		if [ ${res} -gt 0 ]; then
+			return ${res}
+		fi
 		xz -kc9 ${HBSD_STAGEDIR}/${f} > ${HBSD_STAGEDIR}/${f}.xz
+		res=${?}
+		if [ ${res} -gt 0 ]; then
+			return ${res}
+		fi
 	done
 	return 0
 }
 
 sign_release() {
 	(
+		set -ex
+
 		cd ${HBSD_STAGEDIR}
 		for file in $(find . \
 		    -name '*.txz' \
@@ -109,5 +120,5 @@ sign_release() {
 			fi
 		done
 	)
-	return 0
+	return ${?}
 }
