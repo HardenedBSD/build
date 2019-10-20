@@ -39,6 +39,10 @@ config_set_defaults() {
 	HBSD_NOCLEAN="-DNO_CLEAN"
 	HBSD_LOGDIR=/build/logs/13-current.amd64
 
+	# Set by config file, contains potentially sensitive data
+	HBSD_MIRROR_MASTER=""
+	HBSD_MIRROR_PUBDIR=""
+
 	return 0
 }
 
@@ -46,7 +50,7 @@ config_set_dynamic() {
 	HBSD_BUILDNUMBER=${HBSD_BUILDNUMBER:-$(build_number)}
 	HBSD_BUILD_LOG=${HBSD_BUILD_LOG:-${HBSD_LOGDIR}/${HBSD_BUILDNUMBER}.log}
 
-	HBSD_OBJRELDIR="$(make -C ${HBSD_SRC} -V .OBJDIR)/release"
+	HBSD_OBJRELDIR="$(make -C ${HBSD_SRC} TARGET=${HBSD_TARGET} TARGET_ARCH=${HBSD_TARGET_ARCH} -V .OBJDIR)/release"
 
 	return 0
 }

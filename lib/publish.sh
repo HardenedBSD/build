@@ -32,5 +32,7 @@ publish_release() {
 kick_publisher_tires() {
 	# This function is for those mirrors that require push rather
 	# than pull. For now: nothing to see here; move along.
+	rsync -a ${HBSD_PUBDIR}/${HBSD_BUILDNUMBER}/ \
+	    ${HBSD_MIRROR_MASTER}:${HBSD_MIRROR_PUBDIR}/build-${HBSD_BUILDNUMBER}
 	return 0
 }
