@@ -52,7 +52,7 @@ main() {
 	while getopts 'c:' o; do
 		case "${o}" in
 			c)
-				source "${OPTARG}"
+				. ${OPTARG}
 				;;
 		esac
 	done

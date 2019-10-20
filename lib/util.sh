@@ -58,11 +58,11 @@ build_number() {
 	if [ -e ${HBSD_INDEX_FILE} ]; then
 		n=$(cat ${HBSD_INDEX_FILE})
 		n=$((${n} + 1))
-		echo ${n} | tee ${HBSD_INDEX_FILE}
-		return 0
+	else
+		n=1
 	fi
 
-	echo 1
+	echo ${n} | tee ${HBSD_INDEX_FILE}
 	return 0
 }
 
