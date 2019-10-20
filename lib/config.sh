@@ -31,7 +31,6 @@ config_set_defaults() {
 	HBSD_KERNEL=HARDENEDBSD
 	HBSD_LOCKFILE=/tmp/13-current.amd64.lock
 	HBSD_NJOBS=4
-	HBSD_OBJRELDIR=/usr/obj/scratch/src/hbsd-13/amd64.amd64/release
 	HBSD_PUBDIR=/build/pub
 	HBSD_SRC=/scratch/src/hbsd-13
 	HBSD_STAGEDIR=/build/stage
@@ -42,6 +41,8 @@ config_set_defaults() {
 
 	HBSD_BUILDNUMBER=$(build_number)
 	HBSD_BUILD_LOG=${HBSD_LOGDIR}/${HBSD_BUILDNUMBER}.log
+
+	HBSD_OBJRELDIR="$(make -C ${HBSD_SRC} -V .OBJDIR)/release"
 
 	return 0
 }
