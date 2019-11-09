@@ -122,7 +122,7 @@ stage_release() {
 
 	(
 		cd ${HBSD_SRC}
-		git rev-list -n 1 HEAD > ${HBSD_STAGEDIR}/revision.txt
+		git rev-parse HEAD > ${HBSD_STAGEDIR}/revision.txt
 	)
 
 	return 0
