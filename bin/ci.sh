@@ -63,6 +63,7 @@ main() {
 		assert_unlocked && \
 		    lock_build && \
 		    update_codebase && \
+		    clean_build && \
 		    build_hardenedbsd && \
 		    build_release && \
 		    stage_release && \

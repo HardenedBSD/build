@@ -24,6 +24,20 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
+clean_build() {
+	(
+		set -ex
+
+		cd ${HBSD_SRC}/release
+		make \
+		    TARGET=${HBSD_TARGET} \
+		    TARGET_ARCH=${HBSD_TARGET_ARCH} \
+		    clean
+	)
+
+	return 0
+}
+
 build_hardenedbsd() {
 	(
 		set -ex
@@ -81,7 +95,6 @@ stage_release() {
 	for file in $(find ${HBSD_OBJRELDIR} -maxdepth 1 \
 	    -name '*.iso' \
 	    -o -name '*.img' \
-	    -o -name '*.txz' \
 	    -o -name 'MANIFEST'); do
 		f=${file##*/}
 		mv ${file} ${HBSD_STAGEDIR}/${f}
@@ -95,6 +108,23 @@ stage_release() {
 			return ${res}
 		fi
 	done
+
+	# No need to compress the .txz files
+	for file in $(find ${HBSD_OBJRELDIR} -maxdepth 1 \
+	    -name '*.txz'); do
+		f=${file##*/}
+		mv ${file} ${HBSD_STAGEDIR}/${f}
+		res=${?}
+		if [ ${res} -gt 0 ]; then
+			return ${res}
+		fi
+	done
+
+	(
+		cd ${HBSD_SRC}
+		git rev-list -n 1 HEAD > ${HBSD_STAGEDIR}/revision.txt
+	)
+
 	return 0
 }
 
@@ -107,8 +137,9 @@ sign_release() {
 		    -name '*.txz' \
 		    -o -name '*.img' \
 		    -o -name '*.iso' \
-		    -o -name '*.xz' \
-		    -o -name 'MANIFEST'); do
+		    -o -name '*xz' \
+		    -o -name 'MANIFEST' \
+		    -o -name 'revision.txt'); do
 			f=${file##*/}
 			sha256 ${f} >> CHECKSUMS.SHA256
 			sha512 ${f} >> CHECKSUMS.SHA512
