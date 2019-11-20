@@ -24,103 +24,50 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-is_locked() {
-	if [ -e ${HBSD_LOCKFILE} ]; then
-		return 0
-	fi
+get_topdir() {
+	local self
 
-	return 1
-}
+	self=${1}
 
-lock_build() {
-	touch ${HBSD_LOCKFILE}
+	echo $(realpath $(dirname ${self}))
 	return ${?}
 }
 
-unlock_build() {
-	rm -f ${HBSD_LOCKFILE}
-	return ${?}
-}
+TOPDIR=$(get_topdir ${0})
 
-assert_unlocked() {
-	if is_locked; then
-		echo "Build locked. Remove ${HBSD_LOCKFILE}"
-		exit 1
-	fi
+. ${TOPDIR}/../lib/build.sh
+. ${TOPDIR}/../lib/config.sh
+. ${TOPDIR}/../lib/log.sh
+. ${TOPDIR}/../lib/publish.sh
+. ${TOPDIR}/../lib/util.sh
 
-	return 0
-}
+main() {
+	local self
 
-# The build_number function must be called EXACTLY ONCE.
-build_number() {
-	local n
+	self=${0}
+	shift
 
-	if [ -e ${HBSD_INDEX_FILE} ]; then
-		n=$(cat ${HBSD_INDEX_FILE})
-		n=$((${n} + 1))
-	else
-		n=1
-	fi
+	config_set_defaults
 
-	echo ${n} | tee ${HBSD_INDEX_FILE}
-	return 0
-}
-
-codebase_hashish() {
-	(
-		cd ${HBSD_SRC}
-		git rev-parse HEAD
-		exit ${?}
-	)
-	return ${?}
-}
-
-cache_codebase_hashish() {
-	codebase_hashish > ${HBSD_CACHEDIR}/last_build.txt
-	return ${?}
-}
-
-update_codebase() {
-	(
-		set -ex
-
-		cd ${HBSD_SRC}
-		git pull
-	)
-	return ${?}
-}
-
-should_build() {
-	local lastbuild
-	local currenthashish
-
-	if [ ! -f ${HBSD_CACHEDIR}/last_build.txt ]; then
-		return 0
-	fi
-
-	lastbuild=$(cat ${HBSD_CACHEDIR}/last_build.txt)
-	currenthashish=$(codebase_hashish)
-
-	if [ "${lastbuild}" = "${currenthashish}" ]; then
-		return 1
-	fi
-
-	return 0
-}
-
-prune_old_builds() {
-	[ ${HBSD_BUILDNUMBER} -lt ${HBSD_KEEP_NBUILDS} ] && return 0
-
-	return 0
-
-	floor=$((${HBSD_BUILDNUMBER} - ${HBSD_KEEP_NBUILDS}))
-
-	for d in $(find ${HBSD_PUBDIR} -maxdepth 1 -type d | sed 1d); do
-		n=$(basename ${d})
-		if [ ${n} -lt ${floor} ]; then
-			rm -rf ${d}
-		fi
+	while getopts 'c:' o; do
+		case "${o}" in
+			c)
+				. ${OPTARG}
+				;;
+		esac
 	done
 
-	return 0
+	# TODO: provide our own version of config_set_dynamic
+	config_set_dynamic
+
+	(
+		assert_unlocked && \
+		    lock_build && \
+		    prune_old_builds && \
+		    unlock_build
+	) | build_log 2>&1
+	return ${?}
 }
+
+main ${0} $*
+exit ${?}

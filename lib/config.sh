@@ -38,6 +38,8 @@ config_set_defaults() {
 	HBSD_TARGET_ARCH=amd64
 	HBSD_NOCLEAN="-DNO_CLEAN"
 	HBSD_LOGDIR=/build/logs/13-current.amd64
+	HBSD_KEEP_NBUILDS=10
+	HBSD_CACHEDIR=/build/cache/13-current.amd64
 
 	# Set by config file, contains potentially sensitive data
 	HBSD_MIRROR_MASTER=""

@@ -120,10 +120,7 @@ stage_release() {
 		fi
 	done
 
-	(
-		cd ${HBSD_SRC}
-		git rev-parse HEAD > ${HBSD_STAGEDIR}/revision.txt
-	)
+	codebase_hashish > ${HBSD_STAGEDIR}/revision.txt
 
 	return 0
 }

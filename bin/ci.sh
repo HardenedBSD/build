@@ -60,18 +60,27 @@ main() {
 	config_set_dynamic
 
 	(
-		assert_unlocked && \
-		    lock_build && \
-		    update_codebase && \
-		    clean_build && \
+		assert_unlocked && lock_build
+
+		update_codebase || exit ${?}
+
+		if ! should_build; then
+			unlock_build
+			exit 0
+		fi
+
+		clean_build && \
 		    build_hardenedbsd && \
 		    build_release && \
 		    stage_release && \
 		    sign_release && \
 		    publish_release && \
 		    kick_publisher_tires && \
+		    cache_codebase_hashish && \
 		    unlock_build
+		exit ${?}
 	) | build_log 2>&1
+
 	return ${?}
 }
 
