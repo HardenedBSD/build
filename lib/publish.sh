@@ -25,22 +25,18 @@
 # SUCH DAMAGE.
 
 publish_release() {
+	local res
+
 	mv ${HBSD_STAGEDIR} ${HBSD_PUBDIR}/${HBSD_BUILDNUMBER}
+	res=${?}
+	[ ${res} -gt 0 ] && return ${res}
+
 	ln -sf ${HBSD_BUILDNUMBER} ${HBSD_PUBDIR}/BUILD-LATEST
 	return ${?}
 }
 
 kick_publisher_tires() {
-	local res
-
 	[ -z "${HBSD_MIRROR_MASTER}" ] && return 0
-
-	rsync -a ${HBSD_PUBDIR}/${HBSD_BUILDNUMBER}/ \
-	    ${HBSD_MIRROR_MASTER}:${HBSD_MIRROR_PUBDIR}/build-${HBSD_BUILDNUMBER}
-	res=${?}
-	if [ ${res} -gt 0 ]; then
-		return ${res}
-	fi
-
+	rsync -a ${HBSD_PUBDIR}/ ${HBSD_MIRROR_MASTER}:${HBSD_MIRROR_PUBDIR}/
 	return ${?}
 }
