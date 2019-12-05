@@ -36,7 +36,16 @@ publish_release() {
 }
 
 kick_publisher_tires() {
+	local res
+
 	[ -z "${HBSD_MIRROR_MASTER}" ] && return 0
-	rsync -a ${HBSD_PUBDIR}/ ${HBSD_MIRROR_MASTER}:${HBSD_MIRROR_PUBDIR}/
+
+	rsync -a ${HBSD_PUBDIR}/${HBSD_BUILDNUMBER}/ \
+	    ${HBSD_MIRROR_MASTER}:${HBSD_MIRROR_PUBDIR}/build-${HBSD_BUILDNUMBER}/
+	res=${?}
+	[ ${res} -gt 0 ] && return ${res}
+
+	rsync -a ${HBSD_PUBDIR}/BUILD-LATEST \
+	    ${HBSD_MIRROR_MASTER}:${HBSD_MIRROR_PUBDIR}/
 	return ${?}
 }
