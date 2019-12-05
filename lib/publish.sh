@@ -26,6 +26,7 @@
 
 publish_release() {
 	mv ${HBSD_STAGEDIR} ${HBSD_PUBDIR}/${HBSD_BUILDNUMBER}
+	ln -sf ${HBSD_BUILDNUMBER} ${HBSD_PUBDIR}/BUILD-LATEST
 	return ${?}
 }
 
