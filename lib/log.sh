@@ -38,6 +38,7 @@ build_log() {
 	local log
 
 	log="${HBSD_LOGDIR}/builds/${HBSD_BUILD_NAME}/${HBSD_BUILDNUMBER}.log"
+	mkdir -p ${HBSD_LOGDIR}/builds/${HBSD_BUILD_NAME}
 	tee ${log}
 }
 
