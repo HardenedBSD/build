@@ -49,6 +49,7 @@ publish_log() {
 
 	(
 		cd ${HBSD_LOGDIR}
+		git pull
 		git add ${log}
 		git commit -m "BUILD: ${HBSD_BUILD_NAME}/${HBSD_BUILDNUMBER}.log"
 		git push
