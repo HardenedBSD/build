@@ -43,16 +43,22 @@ TOPDIR=$(get_topdir ${0})
 
 main() {
 	local self
+	local forcebuild
 
 	self=${0}
 	shift
 
+	forcebuild=0
+
 	config_set_defaults
 
-	while getopts 'c:' o; do
+	while getopts 'c:f' o; do
 		case "${o}" in
 			c)
 				. ${OPTARG}
+				;;
+			f)
+				forcebuild=1
 				;;
 		esac
 	done
@@ -64,7 +70,7 @@ main() {
 
 		update_codebase || exit ${?}
 
-		if ! should_build; then
+		if ! should_build ${forcebuild}; then
 			unlock_build
 			exit 0
 		fi

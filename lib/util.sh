@@ -93,6 +93,10 @@ update_codebase() {
 should_build() {
 	local lastbuild
 	local currenthashish
+	local forcebuild
+
+	forcebuild=${1}
+	[ ${forcebuild} -gt 0 ] && return 0
 
 	if [ ! -f ${HBSD_CACHEDIR}/last_build.txt ]; then
 		return 0
