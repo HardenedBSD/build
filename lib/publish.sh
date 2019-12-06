@@ -31,7 +31,8 @@ publish_release() {
 	res=${?}
 	[ ${res} -gt 0 ] && return ${res}
 
-	ln -sf ${HBSD_BUILDNUMBER} ${HBSD_PUBDIR}/BUILD-LATEST
+	rm -f ${HBSD_PUBDIR}/BUILD-LATEST
+	ln -sf build-${HBSD_BUILDNUMBER} ${HBSD_PUBDIR}/BUILD-LATEST
 	return ${?}
 }
 
