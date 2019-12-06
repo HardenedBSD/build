@@ -25,6 +25,7 @@
 # SUCH DAMAGE.
 
 config_set_defaults() {
+	HBSD_BUILD_NAME="CURRENT.amd64.amd64"
 	HBSD_GPG_KEY=""
 	#HBSD_GPG_KEY="BB53388D3BD9892815CB9E30819B11A26FFD188D"
 	HBSD_INDEX_FILE=/build/index
@@ -37,7 +38,7 @@ config_set_defaults() {
 	HBSD_TARGET=amd64
 	HBSD_TARGET_ARCH=amd64
 	HBSD_NOCLEAN="-DNO_CLEAN"
-	HBSD_LOGDIR=/build/logs/13-current.amd64
+	HBSD_LOGDIR=/build/logs
 	HBSD_KEEP_NBUILDS=10
 	HBSD_CACHEDIR=/build/cache/13-current.amd64
 

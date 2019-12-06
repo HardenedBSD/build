@@ -35,5 +35,24 @@ log_err() {
 }
 
 build_log() {
-	tee ${HBSD_BUILD_LOG} 2>&1
+	local log
+
+	log="${HBSD_LOGDIR}/builds/${HBSD_BUILD_NAME}/${HBSD_BUILDNUMBER}.log"
+	tee ${log}
+}
+
+publish_log() {
+	local log
+
+	log="${HBSD_LOGDIR}/builds/${HBSD_BUILD_NAME}/${HBSD_BUILDNUMBER}.log"
+
+	(
+		cd ${HBSD_LOGDIR}
+		git add ${log}
+		git commit -m "BUILD: ${HBSD_BUILD_NAME}/${HBSD_BUILDNUMBER}.log"
+		git push
+		exit ${?}
+	)
+
+	return ${?}
 }

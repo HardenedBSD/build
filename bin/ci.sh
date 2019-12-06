@@ -41,6 +41,31 @@ TOPDIR=$(get_topdir ${0})
 . ${TOPDIR}/../lib/publish.sh
 . ${TOPDIR}/../lib/util.sh
 
+perform_build() {
+	local forcebuild
+	forcebuild=${1}
+
+	assert_unlocked && lock_build
+
+	update_codebase || return ${?}
+
+	if ! should_build ${forcebuild}; then
+		unlock_build
+		return 0
+	fi
+
+	clean_build && \
+	    build_hardenedbsd && \
+	    build_release && \
+	    stage_release && \
+	    sign_release && \
+	    publish_release && \
+	    kick_publisher_tires && \
+	    cache_codebase_hashish && \
+	    unlock_build
+	return ${?}
+}
+
 main() {
 	local self
 	local forcebuild
@@ -65,27 +90,9 @@ main() {
 
 	config_set_dynamic
 
-	(
-		assert_unlocked && lock_build
+	perform_build ${forcebuild} | build_log 2>&1
 
-		update_codebase || exit ${?}
-
-		if ! should_build ${forcebuild}; then
-			unlock_build
-			exit 0
-		fi
-
-		clean_build && \
-		    build_hardenedbsd && \
-		    build_release && \
-		    stage_release && \
-		    sign_release && \
-		    publish_release && \
-		    kick_publisher_tires && \
-		    cache_codebase_hashish && \
-		    unlock_build
-		exit ${?}
-	) | build_log 2>&1
+	publish_log
 
 	return ${?}
 }
