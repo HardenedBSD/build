@@ -24,7 +24,15 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
+_skip_build=0
+
+skip_build() {
+	_skip_build=1
+}
+
 clean_build() {
+	[ ${_skip_build} -gt 0 ] && return 0
+
 	(
 		set -ex
 
@@ -39,6 +47,8 @@ clean_build() {
 }
 
 build_hardenedbsd() {
+	[ ${_skip_build} -gt 0 ] && return 0
+
 	(
 		set -ex
 
@@ -61,6 +71,8 @@ build_hardenedbsd() {
 }
 
 build_release() {
+	[ ${_skip_build} -gt 0 ] && return 0
+
 	(
 		set -ex
 

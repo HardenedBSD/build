@@ -77,13 +77,16 @@ main() {
 
 	config_set_defaults
 
-	while getopts 'c:f' o; do
+	while getopts 'c:Sf' o; do
 		case "${o}" in
 			c)
 				. ${OPTARG}
 				;;
 			f)
 				forcebuild=1
+				;;
+			S)
+				skip_build
 				;;
 		esac
 	done
