@@ -61,8 +61,7 @@ perform_build() {
 	    sign_release && \
 	    publish_release && \
 	    kick_publisher_tires && \
-	    cache_codebase_hashish && \
-	    unlock_build
+	    cache_codebase_hashish
 	return ${?}
 }
 
@@ -96,6 +95,8 @@ main() {
 	perform_build ${forcebuild} | build_log 2>&1
 
 	publish_log
+
+	unlock_build
 
 	return ${?}
 }
